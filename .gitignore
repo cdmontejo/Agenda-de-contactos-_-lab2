@@ -1,24 +1,14 @@
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-
-# Environments
-.env
-venv/
-env/
-.venv/
-
-# Testing & Cache
-.pytest_cache/
-test_sandbox/
-
-# Runtime Logs
+*.tmp
+backups/*.zip
+exports/*
+!exports/.gitkeep
 logs/*.log
 !logs/.gitkeep
-
-# OS
-.DS_Store
-Thumbs.db
-
+test_sandbox/
+test_hub_*
+.pytest_cache/
+.vscode/
+.idea/

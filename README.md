@@ -1,8 +1,10 @@
-# 📇 ContactManager Pro — Agenda de Contactos con Acceso Aleatorio
+# 📇 ContactHub Enterprise v2.0
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: Academic](https://img.shields.io/badge/License-Academic-purple.svg)]()
-[![Design: Liquid Glass](https://img.shields.io/badge/UI-Liquid%20Glass-8b5cf6.svg)]()
+[![Framework: PySide6 / QML](https://img.shields.io/badge/GUI-PySide6%20%7C%20Qt%20Quick%20QML-41cd52.svg)](https://www.qt.io/)
+[![Persistence: Fixed 256B Records](https://img.shields.io/badge/Storage-Fixed%20256B%20Binary-8b5cf6.svg)]()
+[![Security: SHA--256](https://img.shields.io/badge/Security-SHA--256%20FIPS%20180--4-10b981.svg)]()
+[![License: Academic](https://img.shields.io/badge/License-Academic%20URL-orange.svg)]()
 
 > **Laboratorio No. 2 — Estructuras de Datos Avanzadas y Manejo de Archivos**  
 > *Facultad de Ingeniería en Informática y Sistemas — Universidad Rafael Landívar*  
@@ -10,32 +12,35 @@
 
 ---
 
-## 🌟 Resumen de Características Principales
+## 🌟 Visión General
 
-ContactManager Pro es una aplicación de escritorio de nivel empresarial desarrollada en Python que administra una agenda de contactos sobre un **archivo de registros de tamaño fijo (256 bytes)** mediante **acceso aleatorio directo (`seek()` y `tell()`)** asistido por un **índice primario en JSON**.
-
-### 💎 Diseño Visual Liquid Glass (Estilo iPhone / iOS)
-- **Fondo animado fluido:** Blobs translúcidos en constante movimiento sinusoidal con desenfoque gaussiano suave mediante `PIL/Pillow`.
-- **Efecto Glassmorphism:** Tarjetas, formularios y paneles oscuros (`#16162a`, `#1a1a32`) con bordes sutiles (`#2a2a4a`) y acentos púrpuras dinámicos (`#8b5cf6`).
-- **Navegación tipo Sidebar:** Barra lateral ejecutiva con indicadores activos y transiciones al pasar el cursor.
+**ContactHub Enterprise** es una plataforma de escritorio de alto rendimiento para la gestión corporativa de contactos. Combina una arquitectura de bajo nivel basada en **registros de tamaño fijo (256 bytes estrictos)** con **acceso aleatorio directo (`seek()` y `tell()`)**, asistido por un **índice primario en JSON** ($O(1)$) y **verificación criptográfica SHA-256**, todo presentado a través de una interfaz moderna y fluida desarrollada con **PySide6 y Qt Quick/QML**.
 
 ---
 
-## 📐 Estructura del Registro Fijo (256 Bytes)
+## 📐 Especificación del Registro Inmutable (256 Bytes)
 
-Para garantizar que `offset = n * RECORD_SIZE` sea exacto en cualquier sistema operativo, los registros se miden en **bytes** con codificación **UTF-8**:
+Para garantizar que `offset = n * RECORD_SIZE` sea exacto en cualquier sistema operativo, los registros se miden en **bytes** reales en codificación **UTF-8**:
 
-| Campo | Bytes | Descripción |
-| :--- | :---: | :--- |
-| `id` | **10** | Identificador entero único (alineado a la derecha con espacios) |
-| `nombre` | **80** | Nombre completo (soporta tildes, diéresis y `ñ`) |
-| `telefono` | **20** | Número telefónico nacional o internacional |
-| `correo` | **80** | Dirección de correo electrónico |
-| `ciudad` | **50** | Ciudad de residencia |
-| `estado` | **1** | `'A'` = Activo, `'D'` = Eliminado lógicamente |
-| `padding` | **14** | Relleno (`0x20`) para alineación binaria uniforme |
-| `newline` | **1** | `\n` (`0x0A`) para legibilidad e inspección limpia |
-| **TOTAL** | **256** | **Tamaño estricto por contacto en `contactos.dat`** |
+```
+0        10                  90          110                 190                240 241           255 256
+┌────────┬───────────────────┬───────────┬───────────────────┬──────────────────┬───┬─────────────┬───┐
+│ ID     │ Nombre            │ Teléfono  │ Correo            │ Ciudad           │Est│ Padding     │\n │
+│ 10 B   │ 80 B              │ 20 B      │ 80 B              │ 50 B             │1B │ 14 B        │1B │
+└────────┴───────────────────┴───────────┴───────────────────┴──────────────────┴───┴─────────────┴───┘
+```
+
+| Campo | Bytes | Codificación | Relleno / Alineación | Descripción |
+| :--- | :---: | :---: | :---: | :--- |
+| `id` | **10** | UTF-8 | Relleno a la izquierda con espacios | Identificador numérico único ($\le 9,999,999,999$) |
+| `nombre` | **80** | UTF-8 | Relleno a la derecha (`0x20`) | Nombre completo (soporta tildes, eñes y diéresis) |
+| `telefono` | **20** | UTF-8 | Relleno a la derecha (`0x20`) | Número telefónico con prefijos y formato |
+| `correo` | **80** | UTF-8 | Relleno a la derecha (`0x20`) | Dirección de correo electrónico |
+| `ciudad` | **50** | UTF-8 | Relleno a la derecha (`0x20`) | Ciudad de residencia |
+| `estado` | **1** | ASCII | Byte único | `'A'` = Activo, `'D'` = Eliminado lógicamente |
+| `padding` | **14** | Binario | Espacios (`0x20`) | Alineación binaria para expansión de versión |
+| `newline` | **1** | ASCII | `\n` (`0x0A`) | Delimitador para visualización limpia en hex |
+| **TOTAL** | **256** | — | — | **Tamaño estricto e invariable por registro** |
 
 ---
 
@@ -50,107 +55,46 @@ Para garantizar que `offset = n * RECORD_SIZE` sea exacto en cualquier sistema o
                                     └───────────────────────────────┘
 ```
 
-1. **Búsqueda por ID:** No recorre el archivo completo ($O(1)$ amortizado). Consulta el índice primario en RAM y ejecuta `f.seek(record_num * 256)`.
-2. **Demostración de `tell()`:** En la barra de estado y en los logs se reporta la posición exacta en bytes antes y después de cada I/O.
-3. **Modificación in-place:** Al editar un contacto solo se sobrescribe su bloque de 256 bytes en el disco con `r+b`. El resto del archivo permanece intacto.
-4. **Eliminación lógica:** El registro se marca con `'D'` en su byte de estado. Puede restaurarse en cualquier momento.
+1. **Búsqueda por ID en $O(1)$:** Consulta el índice primario en RAM (`indice.json`) y ejecuta `f.seek(record_num * 256, os.SEEK_SET)`.
+2. **Demostración de `tell()`:** La interfaz gráfica muestra en tiempo real el puntero devuelto por `f.tell()` antes y después de cada operación.
+3. **Modificación In-Place:** Al editar un contacto solo se sobrescribe su bloque de 256 bytes en el disco con `r+b`. El tamaño total del archivo no varía ni un solo byte.
+4. **Eliminación Lógica:** El registro se marca con `'D'` en su byte de estado. Puede restaurarse a `'A'` en cualquier momento.
+5. **Inspección Hexadecimal:** Modal interactivo que muestra los 256 bytes exactos en hexadecimal y ASCII.
 
 ---
 
-## 🛡️ Seguridad, Integridad y Respaldos
+## 🛡️ Seguridad e Integridad Criptográfica
 
-- **Verificación Criptográfica SHA-256:** Cada guardado calcula el hash del archivo `contactos.dat` y lo guarda en `contactos.sha256`. Al arrancar la aplicación, se recalcula y compara; si no coincide, alerta al usuario sobre alteraciones externas.
-- **Respaldos ZIP con DEFLATE:** Empaqueta `contactos.dat`, `indice.json` y `contactos.sha256` en un archivo `.zip`. Muestra el tamaño original frente al comprimido (ahorro típico del **62%**).
-- **Restauración Asistida:** Permite restaurar desde cualquier ZIP previo, generando automáticamente un respaldo de seguridad del estado actual.
-- **Reconstrucción del Índice:** Si `indice.json` se corrompe o borra, la aplicación lo regenera escaneando los 256 bytes de cada registro.
+- **Sello SHA-256 (FIPS 180-4):** Cada operación atómica calcula el digest de `contactos.dat` en bloques de 8192 bytes y lo persiste en `contactos.sha256`.
+- **Detección de Tampering:** Si el archivo se modifica externamente (incluso un solo bit), el sistema detecta la rotura del sello por efecto avalancha.
+- **Time Machine de Respaldos:** Generación de copias `.zip` con compresión DEFLATE (~60% de reducción). Incluye protocolo *Safe Restore* con snapshot preventivo.
+- **Reconstrucción del Índice:** Si `indice.json` se elimina o corrompe, el sistema escanea los 256 bytes de cada registro y lo regenera automáticamente.
 
 ---
 
-## 🚀 Requisitos e Instalación
+## 🚀 Instalación y Ejecución
 
-### 1. Clonar o descargar el repositorio
-```bash
-git clone <url-del-repositorio>
-cd Agenda-de-contactos-_-lab2
-```
+### 1. Requisitos
+- Python 3.10+
+- PySide6 6.5+
+- fpdf2 2.7+
 
 ### 2. Instalar dependencias
 ```bash
 pip install -r requirements.txt
 ```
-*(Requiere `fpdf2` y `Pillow`. `tkinter` viene incluido con la instalación estándar de Python).*
 
-### 3. Poblar datos iniciales de demostración (Opcional)
+### 3. Poblar datos iniciales de prueba (Opcional)
 ```bash
 python seed_demo_data.py
 ```
 
-### 4. Ejecutar la aplicación
+### 4. Iniciar la aplicación
 ```bash
 python main.py
 ```
 
-### 5. Ejecutar pruebas automatizadas
+### 5. Ejecutar la suite de pruebas
 ```bash
-python -m unittest tests/test_system.py
+python -m unittest discover tests
 ```
-
----
-
-## ⌨️ Atajos de Teclado
-
-| Atajo | Función |
-| :--- | :--- |
-| `Ctrl + N` | Registrar nuevo contacto |
-| `Ctrl + F` | Búsqueda directa por ID con demostración de `seek()` |
-| `Ctrl + E` | Exportar todos los contactos a JSON |
-| `Ctrl + B` | Crear respaldo comprimido ZIP |
-| `F5` | Refrescar registros, métricas y estadísticas |
-
----
-
-## 📁 Estructura del Código
-
-```
-Agenda-de-contactos-_-lab2/
-├── config.py                  # Constantes, tamaños binarios y rutas
-├── main.py                    # Punto de entrada de la aplicación
-├── seed_demo_data.py          # Generador de datos y entregables
-├── generate_report_pdf.py     # Compilador de la documentación técnica
-├── requirements.txt           # Dependencias oficiales
-│
-├── storage/                   # Capa de almacenamiento y bajo nivel
-│   ├── record_manager.py      # Registros fijos 256B + seek() y tell()
-│   ├── index_manager.py       # Índice primario JSON (ID -> registro)
-│   └── integrity.py           # Cálculo y verificación SHA-256
-│
-├── services/                  # Lógica de negocio y servicios
-│   ├── contact_service.py     # Orquestador CRUD y filtros
-│   ├── export_manager.py      # Exportación a JSON, PDF y CSV
-│   ├── backup_manager.py      # Respaldos ZIP y restauración
-│   └── validators.py          # Validación de campos y longitudes
-│
-├── ui/                        # Interfaz gráfica Liquid Glass
-│   ├── app.py                 # Ventana principal, navegación y menú
-│   ├── animated_bg.py         # Canvas con fondo animado sinusoidal
-│   ├── theme.py               # Tokens visuales, colores y tipografía
-│   ├── components.py          # Tarjetas, botones, buscador y tablas
-│   ├── dialogs.py             # Diálogos modales, stat/access, ZIP info
-│   ├── contact_form.py        # Formulario reactivo de alta y edición
-│   ├── dashboard_view.py      # Panel ejecutivo con indicadores
-│   ├── contacts_view.py       # Directorio de contactos con filtros
-│   ├── export_view.py         # Módulo de exportación con historial
-│   ├── tools_view.py          # Herramientas de integridad y mantenimiento
-│   └── help_view.py           # Documentación y atajos
-│
-├── data/                      # Archivos de datos generados
-│   ├── contactos.dat          # Registros fijos (3,072 bytes)
-│   ├── indice.json            # Mapeo clave-registro
-│   └── contactos.sha256       # Hash SHA-256 de integridad
-│
-├── exports/                   # Archivos exportados (JSON, PDF, CSV)
-├── backups/                   # Respaldos comprimidos ZIP
-├── tests/                     # Suite de pruebas unitarias
-└── docs/                      # Documento técnico obligatorio en PDF y MD
-```
-
