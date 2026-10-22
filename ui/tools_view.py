@@ -249,3 +249,4 @@ class ToolsView(tk.Frame):
                 InfoDialog(self, "Restauración Completa", msg)
             else:
                 Toast(self, msg, toast_type='error')
+

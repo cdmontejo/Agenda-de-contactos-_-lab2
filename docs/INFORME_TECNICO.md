@@ -141,3 +141,4 @@ El elevado ratio de compresión se debe al relleno uniforme de espacios (`0x20`)
 3. **Reconstrucción Automática de Índice:** Si `indice.json` se daña o borra, se regenera automáticamente escaneando los 256 bytes de cada registro.
 4. **Exportaciones Triples:** JSON estructurado, Reporte PDF formal con `fpdf2` y tabla apaisada, y CSV con BOM UTF-8 para Microsoft Excel.
 5. **Panel de Información del Sistema:** Inspección de permisos con `os.access()` (lectura/escritura) y tamaño con `os.stat()`.
+

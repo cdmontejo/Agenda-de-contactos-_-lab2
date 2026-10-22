@@ -196,3 +196,4 @@ class ContactForm(tk.Toplevel):
             self.destroy()
         else:
             Toast(self, msg, toast_type='error')
+

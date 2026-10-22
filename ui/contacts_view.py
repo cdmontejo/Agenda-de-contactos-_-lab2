@@ -252,3 +252,4 @@ class ContactsView(tk.Frame):
             self.refresh()
         else:
             Toast(self, msg, toast_type='error')
+

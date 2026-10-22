@@ -166,3 +166,4 @@ class ExportView(tk.Frame):
             os.startfile(EXPORTS_DIR)
         except Exception as e:
             Toast(self, f"No se pudo abrir la carpeta: {e}", toast_type='error')
+

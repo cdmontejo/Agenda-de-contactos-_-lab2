@@ -97,3 +97,4 @@ class HelpView(tk.Frame):
         lbl_keys = tk.Label(c_keys.content, text=keys_text, font=FONT_BODY, fg=TEXT_PRIMARY,
                             bg=BG_CARD, justify='left', anchor='w')
         lbl_keys.pack(fill='x')
+

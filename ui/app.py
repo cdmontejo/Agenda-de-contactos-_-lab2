@@ -348,3 +348,4 @@ class App(tk.Tk):
         """Cierre ordenado y detención del bucle de animación."""
         self.anim_bg.stop()
         self.destroy()
+

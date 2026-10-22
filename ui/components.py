@@ -530,3 +530,4 @@ class Toast(tk.Toplevel):
             self.geometry("+100+100")
 
         self.after(duration_ms, self.destroy)
+

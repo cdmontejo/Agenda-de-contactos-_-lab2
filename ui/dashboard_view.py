@@ -147,3 +147,4 @@ class DashboardView(tk.Frame):
         all_contacts = self.service.get_all_contacts(include_deleted=False)
         recent = all_contacts[-5:] if len(all_contacts) > 5 else all_contacts
         self.recent_table.load_data(recent)
+

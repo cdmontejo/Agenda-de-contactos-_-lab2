@@ -239,3 +239,4 @@ class BackupResultDialog(BaseModalDialog):
 
         ok_btn = GlassButton(btn_box, text="Aceptar", variant='primary', width=120, command=self.destroy)
         ok_btn.pack(side='right')
+
