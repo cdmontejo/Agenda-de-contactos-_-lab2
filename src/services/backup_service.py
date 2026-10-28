@@ -148,3 +148,4 @@ class BackupService:
         except Exception as exc:
             logger.critical("Error crítico durante la restauración de respaldo: %s", exc)
             return False, f"Fallo al restaurar respaldo: {exc}"
+

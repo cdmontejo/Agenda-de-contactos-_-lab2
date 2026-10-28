@@ -21,3 +21,4 @@ __all__ = [
     "validate_contact",
     "check_field_fits"
 ]
+

@@ -459,3 +459,4 @@ class AppController(QObject):
             return [l.strip() for l in lines[-limit:]]
         except Exception as exc:
             return [f"Error leyendo logs: {exc}"]
+

@@ -79,3 +79,4 @@ LOG_FILE = LOGS_DIR / "app.log"
 # Asegurar existencia de carpetas críticas
 for folder in [DATA_DIR, EXPORTS_DIR, BACKUPS_DIR, LOGS_DIR, ASSETS_DIR]:
     folder.mkdir(parents=True, exist_ok=True)
+

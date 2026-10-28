@@ -326,3 +326,4 @@ class ContactService:
             "distribucion_ciudades": ciudades_dist,
             "contactos_recientes": activos[-5:] if activos else []
         }
+

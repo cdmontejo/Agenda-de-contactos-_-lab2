@@ -36,3 +36,4 @@ Rectangle {
         anchors.margins: root.contentPadding
     }
 }
+

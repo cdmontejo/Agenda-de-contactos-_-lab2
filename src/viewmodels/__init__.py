@@ -6,3 +6,4 @@ from .contact_model import ContactListModel
 from .app_controller import AppController
 
 __all__ = ["ContactListModel", "AppController"]
+

@@ -284,3 +284,4 @@ class RecordManager:
         with open(self.filepath, "wb") as f:
             pass
         logger.info("Archivo de datos vaciado: %s", self.filepath)
+

@@ -104,3 +104,4 @@ class IntegrityManager:
             )
             logger.warning(msg)
             return False, stored_hash, current_hash, msg
+

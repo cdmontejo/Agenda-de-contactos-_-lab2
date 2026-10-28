@@ -55,3 +55,4 @@ Item {
         visible: root.source !== ""
     }
 }
+

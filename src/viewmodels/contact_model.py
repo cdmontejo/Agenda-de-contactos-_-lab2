@@ -83,3 +83,4 @@ class ContactListModel(QAbstractListModel):
         self.beginResetModel()
         self._contacts = []
         self.endResetModel()
+

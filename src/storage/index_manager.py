@@ -133,3 +133,4 @@ class IndexManager:
         self.save()
         logger.info("Índice reconstruido exitosamente con %d registros activos.", len(self._index))
         return len(self._index)
+

@@ -113,3 +113,4 @@ def validate_contact(data: Dict[str, Any]) -> Tuple[bool, List[str]]:
         errors.append(msg)
 
     return len(errors) == 0, errors
+
